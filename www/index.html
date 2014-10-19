@@ -5,8 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Settings Manager</title>
-
-    <!-- Bootstrap -->
     <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
@@ -49,7 +47,7 @@
 </div>
 </nav>
 <!-- ko foreach: servers -->
-<div class="panel panel-default" data-bind="visible: active() == true">
+<div class="panel panel-default" data-bind="visible: ( active() == true && $parent.user.loggedIn() == true  )">
   <div class="panel-heading"><!-- ko text: name --><!-- /ko --> Settings</div>
   <div class="panel-body">
     <p data-bind="text : description"></p>
@@ -64,9 +62,32 @@
     </div>
 </div>
 <!-- /ko -->
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<div class="panel panel-default" data-bind="visible: (  user.loggedIn() == false  )">
+  <div class="panel-heading">Login Menu</div>
+  <div class="panel-body">
+    <p data-bind="text : description"></p>
+  </div>
+    <div class="row settings"  >
+      <div class="col-md-6">
+        <div class="input-group input-group-lg">
+          <span class="input-group-addon settinglabel" >Username</span>
+          <input type="text" class="form-control" placeholder="Username" >
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="input-group input-group-lg">
+          <span class="input-group-addon settinglabel" >Password</span>
+          <input type="password" class="form-control" placeholder="Password" >
+        </div>
+      </div>
+      <div class="col-md-12">
+        <div class="input-group input-group-lg">
+        <button type="button" class="btn btn-primary btn-lg" style="float: right;width: 100%;" onclick="settingsManager.user.loggedIn(true);" >Login</button>
+        </div>
+      </div>
+    </div>
+</div>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="bower_components/knockout/dist/knockout.js"></script>
     <script src="js/settingsManager.js"></script>

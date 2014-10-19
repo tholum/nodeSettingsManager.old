@@ -6,8 +6,11 @@ var Setting = function(data){
     self.type = ko.observable( typeof data.type == "string" ? data.type : '' );
     self.original = ko.observable(   String( data.value ) );
     self.changed = ko.observable(false);
-    self.syncData = function( data ){
-        
+    self.syncData = function( newData ){
+        if( self.changed() == false ){
+            self.original( String( newData.value ) );
+            self.value( String( newData.value ) );
+        }
     }
     self.value.subscribe(
         function(){
@@ -41,13 +44,34 @@ var Server = function(data){
         });
         self.active( true );
     }
-    self.syncData = function(newData){
-        
-    }
     self.settings = ko.observableArray( [] );
     $.each( data.settings , function(key,val){
         self.settings.push( new Setting( val ) );
     });
+    self.syncData = function(newData){
+        $.each( newData , function( key , value ){
+            if( key == "settings"){
+                console.log( value );
+                $.each( value , function(key,newSetting){
+                    var match = ko.utils.arrayFirst(self.settings(), function(setting) {
+                        return setting.name() === newSetting.name;
+                    });
+                    console.log( match );
+                    if (!match) {
+                      self.settings.push(new Setting(newSetting));
+                    } else {
+                        match.syncData( newSetting );
+                    } 
+                });
+            } else {
+                if( self.hasOwnProperty(key)){
+                    if( self[key]() !== value ){
+                        self[key](value);
+                    }
+                }
+            }
+        });
+    }
 }
 
 var settingsManager = {
@@ -62,23 +86,10 @@ var settingsManager = {
             match.syncData( data );
         }
     },
+    user : {
+        loggedIn : ko.observable(true),
+        displayName : ko.observable('')
+    },
     changes : ko.observable(0)
 }
-
-settingsManager.servers.push( new Server({ name : 'Mic Processing' , settings: [
-            { name : 'Other Stuff' , value : 100 , type : 'int' },
-            { name : 'Another Value' , value : 0   , type : 'int' },
-            { name : 'Test' , value : 'somevalue' , type : 'string' }
-        ] }));
-settingsManager.servers.push( new Server(
-    { 
-        name : 'Level Shifting' , 
-        active : true , 
-        description : 'This is the level shifting server. It does a bunch of cool things like shift levels and stuff',
-        settings: [
-            { name : 'Max Level' , value : 100 , type : 'int' },
-            { name : 'Min Level' , value : 0   , type : 'int' },
-            { name : 'Error Email' , value : 'test@gmail.com' , type : 'string' }
-        ] 
-    }));
 ko.applyBindings( settingsManager );
