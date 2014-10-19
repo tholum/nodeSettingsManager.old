@@ -8,6 +8,16 @@
 
     <!-- Bootstrap -->
     <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+    .input-group-addon.settinglabel { width: 150px; } 
+    .input-group { width: 100%; }
+    .settings .col-md-6 { margin-bottom: 10px;}
+    .settings {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    </style>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -17,11 +27,6 @@
     <![endif]-->
   </head>
   <body>
-  <!-- <ul class="nav nav-tabs nav-justified" role="tablist">
-  <li class="active"><a href="#">Home</a></li>
-  <li><a href="#">Profile</a></li>
-  <li><a href="#">Messages</a></li>
-</ul> -->
 <nav class="navbar navbar-default" role="navigation">
 <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -29,31 +34,48 @@
         <a class="navbar-brand" href="#">Open Radio Settings Manager</a>
     </div>
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <ul class="nav navbar-nav" data-bind="foreach: servers">
+        <ul class="nav navbar-nav">
+          <!-- ko foreach: servers -->
             <li class="active" data-bind="css : { active : active() == true }">
                 <a href="#" data-bind="text : name, click : onSelect"></a>
             </li>
+          <!-- /ko -->
         </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li class="active" style="margin-top: 8px;margin-right: 8px;" data-bind="visible : changes() !== 0" ><button type="button" class="btn btn-warning">Save</button></li>
+          <li class="active" style="margin-top: 8px;" ><button type="button" class="btn btn-primary">Support</button></li>
+         </ul>
     </div>
 </div>
 </nav>
-<div class="panel panel-default">
-  <!-- Default panel contents -->
-  <div class="panel-heading">Panel heading</div>
+<!-- ko foreach: servers -->
+<div class="panel panel-default" data-bind="visible: active() == true">
+  <div class="panel-heading"><!-- ko text: name --><!-- /ko --> Settings</div>
   <div class="panel-body">
-    <p>...</p>
+    <p data-bind="text : description"></p>
   </div>
-
-    <div class="input-group input-group-lg">
-      <span class="input-group-addon">@</span>
-      <input type="text" class="form-control" placeholder="Username">
+    <div class="row settings" data-bind="foreach : settings" >
+      <div class="col-md-6">
+        <div class="input-group input-group-lg">
+          <span class="input-group-addon settinglabel" data-bind="text : name">@</span>
+          <input type="text" data-bind="value : value" class="form-control" placeholder="Username">
+        </div>
+      </div>
     </div>
 </div>
+<!-- /ko -->
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="bower_components/knockout/dist/knockout.js"></script>
     <script src="js/settingsManager.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+       var socket = io.connect();
+       socket.on("settings" , function( data ){ 
+         settingsManager.syncServerData( data );
+       });
+    </script>
   </body>
 </html>
